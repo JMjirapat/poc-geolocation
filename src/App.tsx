@@ -21,7 +21,7 @@ function App() {
 		onError() {
 			toast.error("เกิดข้อผิดพลาดในการระบุตำแหน่ง");
 		},
-		onSuccess({ coords, timestamp }) {
+		onSuccess({ coords }) {
 			const position = `${coords.latitude},${coords.longitude}`;
 			setPosition(position);
 		},
