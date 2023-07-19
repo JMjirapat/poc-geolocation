@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import toast, { Toaster } from "react-hot-toast";
 import "./App.css";
-import Position from "./component/Position";
 
 type positionData = {
 	label: string;
