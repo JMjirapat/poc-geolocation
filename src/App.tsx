@@ -3,9 +3,31 @@ import { useGeolocated } from "react-geolocated";
 import toast, { Toaster } from "react-hot-toast";
 import "./App.css";
 
+type positionData = {
+	label: string;
+	pos: string;
+	latitude: number;
+	longitude: number;
+	distance: number;
+};
+
+function euclideanDistance(
+	x1: number,
+	y1: number,
+	x2: number,
+	y2: number
+): number {
+	const dx = x2 - x1;
+	const dy = y2 - y1;
+	return Math.sqrt(dx * dx + dy * dy);
+}
+
 function App() {
-	const [isGeoLoading, setIsGeoLoading] = useState(false);
-	const [position, setPosition] = useState(`กรุณากด "ยืนยันตำแหน่ง" ก่อน`);
+	const [isGeoLoading, setIsGeoLoading] = useState<boolean>(false);
+	const [position, setPosition] = useState<positionData | null>(null);
+	const [listPos, setListPos] = useState<positionData[]>([]);
+	const [enAddBtn, setEnAddBtn] = useState<boolean>(false);
+	const [label, setLabel] = useState<string>("");
 
 	const {
 		timestamp,
@@ -23,7 +45,14 @@ function App() {
 		},
 		onSuccess({ coords }) {
 			const position = `${coords.latitude},${coords.longitude}`;
-			setPosition(position);
+			setEnAddBtn(true);
+			setPosition({
+				label: "",
+				pos: position,
+				latitude: coords.latitude,
+				longitude: coords.longitude,
+				distance: 0,
+			});
 		},
 	});
 
@@ -34,6 +63,39 @@ function App() {
 	function confirmPosition() {
 		setIsGeoLoading(true);
 		getPosition();
+	}
+
+	function addPosition() {
+		if (!position) return;
+		setEnAddBtn(false);
+		if (listPos.length <= 0) {
+			setListPos((prev) => [
+				...prev,
+				{
+					...position,
+					label: "ตำแหน่งอ้างอิง",
+				},
+			]);
+		} else {
+			const srcPos = listPos.filter(
+				(item) => item.label === "ตำแหน่งอ้างอิง"
+			)[0];
+			const distance = euclideanDistance(
+				srcPos.latitude,
+				srcPos.longitude,
+				position.latitude,
+				position.longitude
+			);
+			setListPos((prev) => [
+				...prev,
+				{
+					...position,
+					label: label.trim().length > 0 ? label : "ไม่ได้ระบุ",
+					distance: distance,
+				},
+			]);
+			setLabel("");
+		}
 	}
 
 	if (!isGeolocationAvailable || !isGeolocationEnabled) {
@@ -47,13 +109,45 @@ function App() {
 		);
 	}
 
+	const clearAllPosition = () => {
+		setListPos([]);
+		setLabel("");
+		setPosition(null);
+	};
+
 	return (
 		<>
 			<Toaster />
-			<p>{position}</p>
+			<p>{position ? position.pos : `กรุณากด "ยืนยันตำแหน่ง" ก่อน`}</p>
+			{listPos.length > 0 && (
+				<div>
+					<span>แท็ก:</span>
+					<input
+						onChange={(e) => setLabel(e.target.value)}
+						value={label}
+					></input>
+				</div>
+			)}
 			<button onClick={confirmPosition} disabled={isGeoLoading}>
 				ยืนยันตำแหน่ง
 			</button>
+			<button onClick={addPosition} disabled={!enAddBtn}>
+				เพิ่มตำแหน่ง
+			</button>
+			<button onClick={clearAllPosition} disabled={listPos.length <= 0}>
+				เคลียร์
+			</button>
+			<div>
+				{listPos.map((item, idx) => {
+					return (
+						<div key={idx}>
+							<span>
+								{item.label} | {item.pos} | ระยะห่าง: {item.distance}
+							</span>
+						</div>
+					);
+				})}
+			</div>
 		</>
 	);
 }
