@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import toast, { Toaster } from "react-hot-toast";
 import "./App.css";
+import Position from "./component/Position";
 
 type positionData = {
 	label: string;
@@ -96,6 +97,7 @@ function App() {
 			]);
 			setLabel("");
 		}
+		setPosition(null);
 	}
 
 	if (!isGeolocationAvailable || !isGeolocationEnabled) {
@@ -112,12 +114,14 @@ function App() {
 	const clearAllPosition = () => {
 		setListPos([]);
 		setLabel("");
+		setEnAddBtn(false);
 		setPosition(null);
 	};
 
 	return (
 		<>
 			<Toaster />
+			{/* <Position /> */}
 			<p>{position ? position.pos : `กรุณากด "ยืนยันตำแหน่ง" ก่อน`}</p>
 			{listPos.length > 0 && (
 				<div>
@@ -128,13 +132,17 @@ function App() {
 					></input>
 				</div>
 			)}
-			<button onClick={confirmPosition} disabled={isGeoLoading}>
+			<button onClick={confirmPosition} disabled={isGeoLoading} type="button">
 				ยืนยันตำแหน่ง
 			</button>
-			<button onClick={addPosition} disabled={!enAddBtn}>
+			<button onClick={addPosition} disabled={!enAddBtn} type="button">
 				เพิ่มตำแหน่ง
 			</button>
-			<button onClick={clearAllPosition} disabled={listPos.length <= 0}>
+			<button
+				onClick={clearAllPosition}
+				disabled={listPos.length <= 0}
+				type="button"
+			>
 				เคลียร์
 			</button>
 			<div>
