@@ -161,8 +161,11 @@ const RealTimePosition = () => {
 				toast.error("กรุณาเพิ่มรูปภาพ");
 				return;
 			}
-			if (!(imgCoord.latitude && imgCoord.longitude)) {
-				toast.error("ตำแหน่งไม่ถูกต้อง");
+			if (
+				imgCoord.latitude === "ไม่พบตำแหน่ง" ||
+				imgCoord.longitude === "ไม่พบตำแหน่ง"
+			) {
+				toast.error("รูปนี้ไม่พบตำแหน่ง, ไม่สามารถใช้งานได้");
 				return;
 			}
 			setListPos((prev) => [
