@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
 	euclideanDistance,
 	haversineDistance,
@@ -6,8 +6,9 @@ import {
 import { positionData } from "../types";
 import toast, { Toaster } from "react-hot-toast";
 import { IconPhotoPlus, IconGps } from "@tabler/icons-react";
-import { useDropzone } from "react-dropzone";
+//import { useDropzone } from "react-dropzone";
 import exifr from "exifr";
+import Webcam from "react-webcam";
 
 const RealTimePosition = () => {
 	const [gpsCoord, setGpsCoord] = useState<{
@@ -18,6 +19,8 @@ const RealTimePosition = () => {
 		longitude: null,
 	});
 	const [file, setFile] = useState<File | null>(null);
+	const [img, setImg] = useState<string | null>(null);
+	const webcamRef = useRef(null);
 	const [imgCoord, setImgCoord] = useState<{
 		latitude: number | "ไม่พบตำแหน่ง";
 		longitude: number | "ไม่พบตำแหน่ง";
@@ -32,6 +35,37 @@ const RealTimePosition = () => {
 		right: "",
 	});
 	const [addType, setAddType] = useState<"gps" | "img">("gps");
+
+	const videoConstraints = {
+		width: 420,
+		height: 420,
+		facingMode: "user",
+	};
+
+	const capture = useCallback(() => {
+		if (!webcamRef.current) return;
+		const imageSrc: string | null = webcamRef.current.getScreenshot();
+		setImg(imageSrc);
+		const imgNew = new Image();
+		imgNew.src = imageSrc ?? "";
+		exifr
+			.parse(imgNew)
+			.then((data) => {
+				console.log(data);
+				console.log(imgNew);
+
+				// setImgCoord({
+				// 	latitude: Number(latitude.toFixed(7)) ?? 0,
+				// 	longitude: Number(longitude.toFixed(7)) ?? 0,
+				// });
+			})
+			.catch(() => {
+				setImgCoord({
+					latitude: "ไม่พบตำแหน่ง",
+					longitude: "ไม่พบตำแหน่ง",
+				});
+			});
+	}, [webcamRef]);
 
 	useEffect(() => {
 		const watchPosition = navigator.geolocation.watchPosition(
@@ -53,39 +87,37 @@ const RealTimePosition = () => {
 		};
 	}, []);
 
-	const onDrop = useCallback((acceptedFiles: File[]) => {
-		if (acceptedFiles.length === 0) return;
-		const file = acceptedFiles[0];
-		setFile(file);
-		exifr
-			.gps(file)
-			.then(({ latitude, longitude }) => {
-				setImgCoord({
-					latitude: Number(latitude.toFixed(7)) ?? 0,
-					longitude: Number(longitude.toFixed(7)) ?? 0,
-				});
-			})
-			.catch((err: string) => {
-				toast.error(`${err}`);
+	// const onDrop = useCallback((acceptedFiles: File[]) => {
+	// 	if (acceptedFiles.length === 0) return;
+	// 	const file = acceptedFiles[0];
+	// 	setFile(file);
+	// exifr
+	// 	.gps(file)
+	// 	.then(({ latitude, longitude }) => {
+	// 		setImgCoord({
+	// 			latitude: Number(latitude.toFixed(7)) ?? 0,
+	// 			longitude: Number(longitude.toFixed(7)) ?? 0,
+	// 		});
+	// 	})
+	// 	.catch(() => {
+	// 		setImgCoord({
+	// 			latitude: "ไม่พบตำแหน่ง",
+	// 			longitude: "ไม่พบตำแหน่ง",
+	// 		});
+	// 	});
+	// }, []);
 
-				setImgCoord({
-					latitude: "ไม่พบตำแหน่ง",
-					longitude: "ไม่พบตำแหน่ง",
-				});
-			});
-	}, []);
-
-	const { getRootProps, getInputProps } = useDropzone({
-		accept: {
-			"image/*": [".jpeg", ".png"],
-		},
-		onDrop: onDrop,
-		maxFiles: 1,
-		multiple: false,
-		onError(err) {
-			console.log(err);
-		},
-	});
+	// const { getRootProps, getInputProps } = useDropzone({
+	// 	accept: {
+	// 		"image/*": [".jpeg", ".png"],
+	// 	},
+	// 	onDrop: onDrop,
+	// 	maxFiles: 1,
+	// 	multiple: false,
+	// 	onError(err) {
+	// 		console.log(err);
+	// 	},
+	// });
 
 	const distComparison = (leftPos: positionData, right: positionData) => {
 		const euclidean = euclideanDistance(
@@ -183,7 +215,6 @@ const RealTimePosition = () => {
 	return (
 		<div className="max-w-xl mx-auto flex flex-col gap-4 py-12 p-2">
 			<Toaster />
-			<>{file}</>
 			<div className="flex flex-col gap-2">
 				<label className="block text-xs font-medium text-gray-700">
 					เปรียบเทียบ
@@ -220,7 +251,7 @@ const RealTimePosition = () => {
 						: 0}{" "}
 					เมตร
 				</span>
-				<ul className="flex border-b border-gray-100">
+				{/* <ul className="flex border-b border-gray-100">
 					<li className="flex-1">
 						<div
 							className="relative block p-4"
@@ -260,7 +291,7 @@ const RealTimePosition = () => {
 							</div>
 						</div>
 					</li>
-				</ul>
+				</ul> */}
 				{addType === "gps" && (
 					<div className="mt-2 w-full flex flex-col gap-2">
 						<label className="block text-xs font-medium text-gray-700">
@@ -283,7 +314,7 @@ const RealTimePosition = () => {
 								<span>ลองจิจูด: {gpsCoord.longitude}</span>
 							</>
 						) : (
-							<span>Loading...</span>
+							<span>กำลังโหลด...</span>
 						)}
 					</div>
 				)}
@@ -293,7 +324,29 @@ const RealTimePosition = () => {
 							รูปภาพ
 						</label>
 						<div className="flex flex-col items-center">
-							<div
+							{img === null ? (
+								<>
+									<Webcam
+										audio={false}
+										mirrored={true}
+										height={200}
+										width={200}
+										ref={webcamRef}
+										screenshotFormat="image/jpeg"
+										videoConstraints={videoConstraints}
+									/>
+									<button onClick={capture}>Capture photo</button>
+								</>
+							) : (
+								<>
+									<div className="w-[200px]">
+										<img src={img} alt="screenshot" />
+									</div>
+
+									<button onClick={() => setImg(null)}>Retake</button>
+								</>
+							)}
+							{/* <div
 								{...getRootProps({
 									className:
 										"w-40 h-40 border flex items-center justify-center overflow-hidden",
@@ -308,13 +361,13 @@ const RealTimePosition = () => {
 								) : (
 									<p>เพิ่มรูปภาพตรงนี้</p>
 								)}
-							</div>
+							</div> */}
 						</div>
 
 						<label className="block text-xs font-medium text-gray-700">
 							ตำแหน่งรูปภาพ:
 						</label>
-						{file ? (
+						{img ? (
 							<>
 								<span>ละติจูด: {imgCoord.latitude}</span>
 								<span>ลองจิจูด: {imgCoord.longitude}</span>
