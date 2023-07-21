@@ -1,14 +1,14 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
 	euclideanDistance,
 	haversineDistance,
 } from "../untils/calculateDistance";
 import { positionData } from "../types";
 import toast, { Toaster } from "react-hot-toast";
-import { IconPhotoPlus, IconGps } from "@tabler/icons-react";
+//import { IconPhotoPlus, IconGps } from "@tabler/icons-react";
 //import { useDropzone } from "react-dropzone";
-import exifr from "exifr";
-import Webcam from "react-webcam";
+//import exifr from "exifr";
+//import Webcam from "react-webcam";
 
 const RealTimePosition = () => {
 	const [gpsCoord, setGpsCoord] = useState<{
@@ -19,8 +19,8 @@ const RealTimePosition = () => {
 		longitude: null,
 	});
 	const [file, setFile] = useState<File | null>(null);
-	const [img, setImg] = useState<string | null>(null);
-	const webcamRef = useRef(null);
+	//const [img, setImg] = useState<string | null>(null);
+	//const webcamRef = useRef(null);
 	const [imgCoord, setImgCoord] = useState<{
 		latitude: number | "ไม่พบตำแหน่ง";
 		longitude: number | "ไม่พบตำแหน่ง";
@@ -34,38 +34,39 @@ const RealTimePosition = () => {
 		left: "",
 		right: "",
 	});
-	const [addType, setAddType] = useState<"gps" | "img">("gps");
+	//const [addType, setAddType] = useState<"gps" | "img">("gps");
+	const [addType] = useState<"gps" | "img">("gps");
 
-	const videoConstraints = {
-		width: 420,
-		height: 420,
-		facingMode: "user",
-	};
+	// const videoConstraints = {
+	// 	width: 420,
+	// 	height: 420,
+	// 	facingMode: "user",
+	// };
 
-	const capture = useCallback(() => {
-		if (!webcamRef.current) return;
-		const imageSrc: string | null = webcamRef.current.getScreenshot();
-		setImg(imageSrc);
-		const imgNew = new Image();
-		imgNew.src = imageSrc ?? "";
-		exifr
-			.parse(imgNew)
-			.then((data) => {
-				console.log(data);
-				console.log(imgNew);
+	// const capture = useCallback(() => {
+	// 	if (!webcamRef.current) return;
+	// 	const imageSrc: string | null = webcamRef.current.getScreenshot();
+	// 	setImg(imageSrc);
+	// 	const imgNew = new Image();
+	// 	imgNew.src = imageSrc ?? "";
+	// 	exifr
+	// 		.parse(imgNew)
+	// 		.then((data) => {
+	// 			console.log(data);
+	// 			console.log(imgNew);
 
-				// setImgCoord({
-				// 	latitude: Number(latitude.toFixed(7)) ?? 0,
-				// 	longitude: Number(longitude.toFixed(7)) ?? 0,
-				// });
-			})
-			.catch(() => {
-				setImgCoord({
-					latitude: "ไม่พบตำแหน่ง",
-					longitude: "ไม่พบตำแหน่ง",
-				});
-			});
-	}, [webcamRef]);
+	// 			// setImgCoord({
+	// 			// 	latitude: Number(latitude.toFixed(7)) ?? 0,
+	// 			// 	longitude: Number(longitude.toFixed(7)) ?? 0,
+	// 			// });
+	// 		})
+	// 		.catch(() => {
+	// 			setImgCoord({
+	// 				latitude: "ไม่พบตำแหน่ง",
+	// 				longitude: "ไม่พบตำแหน่ง",
+	// 			});
+	// 		});
+	// }, [webcamRef]);
 
 	useEffect(() => {
 		const watchPosition = navigator.geolocation.watchPosition(
@@ -324,7 +325,7 @@ const RealTimePosition = () => {
 							รูปภาพ
 						</label>
 						<div className="flex flex-col items-center">
-							{img === null ? (
+							{/* {img === null ? (
 								<>
 									<Webcam
 										audio={false}
@@ -345,7 +346,7 @@ const RealTimePosition = () => {
 
 									<button onClick={() => setImg(null)}>Retake</button>
 								</>
-							)}
+							)} */}
 							{/* <div
 								{...getRootProps({
 									className:
@@ -367,14 +368,14 @@ const RealTimePosition = () => {
 						<label className="block text-xs font-medium text-gray-700">
 							ตำแหน่งรูปภาพ:
 						</label>
-						{img ? (
+						{/* {img ? (
 							<>
 								<span>ละติจูด: {imgCoord.latitude}</span>
 								<span>ลองจิจูด: {imgCoord.longitude}</span>
 							</>
 						) : (
 							<span>กรุณาเพิ่มรูปภาพก่อน</span>
-						)}
+						)} */}
 					</div>
 				)}
 			</div>
