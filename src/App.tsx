@@ -125,6 +125,10 @@ function App() {
 		setLabel("");
 		setEnAddBtn(false);
 		setPosition(null);
+		setComparison({
+			left: "",
+			right: "",
+		});
 	};
 
 	const handleCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +174,7 @@ function App() {
 				<label className="block text-xs font-medium text-gray-700">
 					เปรียบเทียบ
 				</label>
-				<span>{`${
+				{/* <span>{`${
 					comparison.left === ""
 						? "ยังไม่ได้กำหนด"
 						: listPos[Number(comparison.left)].label
@@ -178,7 +182,7 @@ function App() {
 					comparison.right === ""
 						? "ยังไม่ได้กำหนด"
 						: listPos[Number(comparison.right)].label
-				}`}</span>
+				}`}</span> */}
 				<label className="block text-xs font-medium text-gray-700">
 					ระยะห่าง (Euclidean distance)
 				</label>
