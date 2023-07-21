@@ -247,7 +247,7 @@ function App() {
 					type="button"
 					className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
 				>
-					<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
+					<span className="flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent h-full">
 						เคลียร์
 					</span>
 				</button>
@@ -261,23 +261,19 @@ function App() {
 							className="flex-1 flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6"
 						>
 							<div className="flex items-center justify-center sm:gap-8">
-								<label>
-									<input
-										id={`${idx}:left`}
-										type="checkbox"
-										onChange={handleCheckbox}
-										checked={comparison.left === `${idx}`}
-									/>
-								</label>
+								<input
+									id={`${idx}:left`}
+									type="checkbox"
+									onChange={handleCheckbox}
+									checked={comparison.left === `${idx}`}
+								/>
 								{item.label} | {item.pos}
-								<label>
-									<input
-										id={`${idx}:right`}
-										type="checkbox"
-										onChange={handleCheckbox}
-										checked={comparison.right === `${idx}`}
-									/>
-								</label>
+								<input
+									id={`${idx}:right`}
+									type="checkbox"
+									onChange={handleCheckbox}
+									checked={comparison.right === `${idx}`}
+								/>
 							</div>
 						</div>
 					);
