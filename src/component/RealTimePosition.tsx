@@ -71,7 +71,9 @@ const RealTimePosition = () => {
 							: "ไม่พบตำแหน่ง",
 				});
 			})
-			.catch(() => {
+			.catch((err: string) => {
+				toast.error(`${err}`);
+
 				setImgCoord({
 					latitude: "ไม่พบตำแหน่ง",
 					longitude: "ไม่พบตำแหน่ง",
