@@ -61,14 +61,8 @@ const RealTimePosition = () => {
 			.gps(file)
 			.then(({ latitude, longitude }) => {
 				setImgCoord({
-					latitude:
-						typeof latitude === "number"
-							? Number(latitude.toFixed(7))
-							: "ไม่พบตำแหน่ง",
-					longitude:
-						typeof longitude === "number"
-							? Number(longitude.toFixed(7))
-							: "ไม่พบตำแหน่ง",
+					latitude: Number(latitude.toFixed(7)) ?? 0,
+					longitude: Number(longitude.toFixed(7)) ?? 0,
 				});
 			})
 			.catch((err: string) => {
