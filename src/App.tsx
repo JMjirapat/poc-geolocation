@@ -262,10 +262,10 @@ function App() {
 					return (
 						<div
 							key={idx}
-							className="flex-1 flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-2"
+							className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-2"
 						>
 							<div className="flex items-center justify-center sm:gap-8">
-								<div className="flex-1">
+								<div className="flex-1 min-w-[10px]">
 									<input
 										id={`${idx}:left`}
 										type="checkbox"
@@ -277,7 +277,7 @@ function App() {
 								<p className="flex-10">
 									{item.label} | {item.pos}
 								</p>
-								<div className="flex-1">
+								<div className="flex-1 min-w-[10px]">
 									<input
 										id={`${idx}:right`}
 										type="checkbox"
