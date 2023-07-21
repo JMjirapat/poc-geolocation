@@ -1,18 +1,29 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import {
 	euclideanDistance,
 	haversineDistance,
 } from "../untils/calculateDistance";
 import { positionData } from "../types";
 import toast, { Toaster } from "react-hot-toast";
+import { IconPhotoPlus, IconGps } from "@tabler/icons-react";
+import { useDropzone } from "react-dropzone";
+import exifr from "exifr";
 
 const RealTimePosition = () => {
-	const [coordinates, setCoordinates] = useState<{
+	const [gpsCoord, setGpsCoord] = useState<{
 		latitude: number | null;
 		longitude: number | null;
 	}>({
 		latitude: null,
 		longitude: null,
+	});
+	const [file, setFile] = useState<File | null>(null);
+	const [imgCoord, setImgCoord] = useState<{
+		latitude: number | "ไม่พบตำแหน่ง";
+		longitude: number | "ไม่พบตำแหน่ง";
+	}>({
+		latitude: "ไม่พบตำแหน่ง",
+		longitude: "ไม่พบตำแหน่ง",
 	});
 	const [listPos, setListPos] = useState<positionData[]>([]);
 	const [label, setLabel] = useState<string>("");
@@ -20,14 +31,14 @@ const RealTimePosition = () => {
 		left: "",
 		right: "",
 	});
+	const [addType, setAddType] = useState<"gps" | "img">("gps");
 
 	useEffect(() => {
-		// Function to get the real-time position
 		const watchPosition = navigator.geolocation.watchPosition(
 			(position) => {
-				const latitude = position.coords.latitude;
-				const longitude = position.coords.longitude;
-				setCoordinates({ latitude, longitude });
+				const latitude = Number(position.coords.latitude.toFixed(7));
+				const longitude = Number(position.coords.longitude.toFixed(7));
+				setGpsCoord({ latitude, longitude });
 			},
 			(error) => {
 				console.error("Error getting geolocation:", error);
@@ -37,12 +48,48 @@ const RealTimePosition = () => {
 				timeout: 1000, // Set a timeout for the geolocation request (in milliseconds)
 			}
 		);
-
-		// Clean up the watchPosition when the component is unmounted
 		return () => {
 			navigator.geolocation.clearWatch(watchPosition);
 		};
 	}, []);
+
+	const onDrop = useCallback((acceptedFiles: File[]) => {
+		if (acceptedFiles.length === 0) return;
+		const file = acceptedFiles[0];
+		setFile(file);
+		exifr
+			.gps(file)
+			.then(({ latitude, longitude }) => {
+				setImgCoord({
+					latitude:
+						typeof latitude === "number"
+							? Number(latitude.toFixed(7))
+							: "ไม่พบตำแหน่ง",
+					longitude:
+						typeof longitude === "number"
+							? Number(longitude.toFixed(7))
+							: "ไม่พบตำแหน่ง",
+				});
+			})
+			.catch(() => {
+				setImgCoord({
+					latitude: "ไม่พบตำแหน่ง",
+					longitude: "ไม่พบตำแหน่ง",
+				});
+			});
+	}, []);
+
+	const { getRootProps, getInputProps } = useDropzone({
+		accept: {
+			"image/*": [".jpeg", ".png"],
+		},
+		onDrop: onDrop,
+		maxFiles: 1,
+		multiple: false,
+		onError(err) {
+			console.log(err);
+		},
+	});
 
 	const distComparison = (leftPos: positionData, right: positionData) => {
 		const euclidean = euclideanDistance(
@@ -84,27 +131,54 @@ const RealTimePosition = () => {
 			left: "",
 			right: "",
 		});
+		setFile(null);
+		setImgCoord({ latitude: "ไม่พบตำแหน่ง", longitude: "ไม่พบตำแหน่ง" });
 	};
 
 	function addPosition() {
-		if (label.length < 1) {
-			toast.error("กรุณาใส่ชื่อตำแหน่ง");
-			return;
+		if (addType === "gps") {
+			if (label.length < 1) {
+				toast.error("กรุณาใส่ชื่อตำแหน่ง");
+				return;
+			}
+			if (!(gpsCoord.latitude && gpsCoord.longitude)) {
+				toast.error("ตำแหน่งไม่ถูกต้อง");
+				return;
+			}
+			setListPos((prev) => [
+				...prev,
+				{
+					type: addType,
+					latitude: gpsCoord.latitude ?? 0,
+					longitude: gpsCoord.longitude ?? 0,
+					data: label.trim(),
+				},
+			]);
+			setLabel("");
 		}
-		if (!(coordinates.latitude && coordinates.longitude)) {
-			toast.error("ตำแหน่งไม่ถูกต้อง");
-			return;
+		if (addType === "img") {
+			if (!file) {
+				toast.error("กรุณาเพิ่มรูปภาพ");
+				return;
+			}
+			if (!(imgCoord.latitude && imgCoord.longitude)) {
+				toast.error("ตำแหน่งไม่ถูกต้อง");
+				return;
+			}
+			setListPos((prev) => [
+				...prev,
+				{
+					type: addType,
+					latitude:
+						typeof imgCoord.latitude === "number" ? imgCoord.latitude : 0,
+					longitude:
+						typeof imgCoord.latitude === "number" ? imgCoord.latitude : 0,
+					data: file,
+				},
+			]);
+			setFile(null);
+			setImgCoord({ latitude: "ไม่พบตำแหน่ง", longitude: "ไม่พบตำแหน่ง" });
 		}
-		setListPos((prev) => [
-			...prev,
-			{
-				latitude: coordinates.latitude ?? 0,
-				longitude: coordinates.longitude ?? 0,
-				pos: `${coordinates.latitude ?? 0},${coordinates.longitude ?? 0}`,
-				label: label.trim(),
-			},
-		]);
-		setLabel("");
 	}
 
 	return (
@@ -114,7 +188,7 @@ const RealTimePosition = () => {
 				<label className="block text-xs font-medium text-gray-700">
 					เปรียบเทียบ
 				</label>
-				<span>{`${
+				{/* <span>{`${
 					comparison.left === ""
 						? "ยังไม่ได้กำหนด"
 						: listPos[Number(comparison.left)].label
@@ -122,7 +196,7 @@ const RealTimePosition = () => {
 					comparison.right === ""
 						? "ยังไม่ได้กำหนด"
 						: listPos[Number(comparison.right)].label
-				}`}</span>
+				}`}</span> */}
 				<label className="block text-xs font-medium text-gray-700">
 					ระยะห่าง (Euclidean distance)
 				</label>
@@ -144,45 +218,138 @@ const RealTimePosition = () => {
 								listPos[Number(comparison.right)]
 						  ).haversine
 						: 0}{" "}
-					m.
+					เมตร
 				</span>
+				<ul className="flex border-b border-gray-100">
+					<li className="flex-1">
+						<div
+							className="relative block p-4"
+							onClick={() => setAddType("gps")}
+						>
+							{addType === "gps" && (
+								<span className="absolute inset-x-0 -bottom-px h-px w-full bg-pink-600"></span>
+							)}
 
-				<div className="mt-2 w-full">
-					<label className="block text-xs font-medium text-gray-700">
-						ชื่อตำแหน่ง
-					</label>
+							<div className="flex items-center justify-center gap-4">
+								<IconGps />
 
-					<input
-						value={label}
-						onChange={(e) => setLabel(e.target.value)}
-						type="text"
-						placeholder="สถานที่"
-						className="mt-1 w-full rounded-md border-gray-200 shadow-sm sm:text-sm p-3"
-					/>
-				</div>
+								<span className="text-sm font-medium text-gray-900">
+									{" "}
+									ตำแหน่ง{" "}
+								</span>
+							</div>
+						</div>
+					</li>
+
+					<li className="flex-1">
+						<div
+							className="relative block p-4"
+							onClick={() => setAddType("img")}
+						>
+							{addType === "img" && (
+								<span className="absolute inset-x-0 -bottom-px h-px w-full bg-pink-600"></span>
+							)}
+
+							<div className="flex items-center justify-center gap-4">
+								<IconPhotoPlus />
+
+								<span className="text-sm font-medium text-gray-900">
+									{" "}
+									รูปภาพ{" "}
+								</span>
+							</div>
+						</div>
+					</li>
+				</ul>
+				{addType === "gps" && (
+					<div className="mt-2 w-full flex flex-col gap-2">
+						<label className="block text-xs font-medium text-gray-700">
+							ชื่อตำแหน่ง
+						</label>
+
+						<input
+							value={label}
+							onChange={(e) => setLabel(e.target.value)}
+							type="text"
+							placeholder="สถานที่"
+							className="mt-1 w-full rounded-md border-gray-200 shadow-sm sm:text-sm p-3"
+						/>
+						<label className="block text-xs font-medium text-gray-700">
+							ตำแหน่งปัจจุบัน (อัพเดตทุก 1 วินาที):
+						</label>
+						{gpsCoord.latitude && gpsCoord.longitude ? (
+							<>
+								<span>ละติจูด: {gpsCoord.latitude}</span>
+								<span>ลองจิจูด: {gpsCoord.longitude}</span>
+							</>
+						) : (
+							<span>Loading...</span>
+						)}
+					</div>
+				)}
+				{addType === "img" && (
+					<div className="mt-2 w-full flex flex-col gap-2">
+						<label className="block text-xs font-medium text-gray-700">
+							รูปภาพ
+						</label>
+						<div className="flex flex-col items-center">
+							<div
+								{...getRootProps({
+									className:
+										"w-40 h-40 border flex items-center justify-center overflow-hidden",
+								})}
+							>
+								<input {...getInputProps()} />
+								{file ? (
+									<img
+										src={URL.createObjectURL(file)}
+										className="w-full h-full object-contain"
+									/>
+								) : (
+									<p>เพิ่มรูปภาพตรงนี้</p>
+								)}
+							</div>
+						</div>
+
+						<label className="block text-xs font-medium text-gray-700">
+							ตำแหน่งรูปภาพ:
+						</label>
+						{file ? (
+							<>
+								<span>ละติจูด: {imgCoord.latitude}</span>
+								<span>ลองจิจูด: {imgCoord.longitude}</span>
+							</>
+						) : (
+							<span>กรุณาเพิ่มรูปภาพก่อน</span>
+						)}
+					</div>
+				)}
 			</div>
-			<label className="block text-xs font-medium text-gray-700">
-				ตำแหน่งปัจจุบัน (อัพเดตทุก 1 วินาที):
-			</label>
-			{coordinates.latitude && coordinates.longitude ? (
-				<>
-					<span>Latitude: {coordinates.latitude}</span>
-					<span>Longitude: {coordinates.longitude}</span>
-				</>
-			) : (
-				<span>Loading...</span>
-			)}
 			<div className="flex">
-				<button
-					onClick={addPosition}
-					disabled={!(coordinates.latitude && coordinates.longitude)}
-					type="button"
-					className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
-				>
-					<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
-						เพิ่มตำแหน่ง
-					</span>
-				</button>
+				{addType === "gps" && (
+					<button
+						onClick={addPosition}
+						disabled={!(gpsCoord.latitude && gpsCoord.longitude)}
+						type="button"
+						className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+					>
+						<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
+							เพิ่มตำแหน่ง
+						</span>
+					</button>
+				)}
+				{addType === "img" && (
+					<button
+						onClick={addPosition}
+						disabled={!file}
+						type="button"
+						className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+					>
+						<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
+							เพิ่มรูปภาพ
+						</span>
+					</button>
+				)}
 				<button
 					onClick={clearAllPosition}
 					disabled={listPos.length <= 0}
@@ -195,7 +362,7 @@ const RealTimePosition = () => {
 				</button>
 			</div>
 
-			<div className="flex flex-col">
+			<div className="flex flex-col gap-1">
 				{listPos.map((item, idx) => {
 					return (
 						<div
@@ -212,9 +379,25 @@ const RealTimePosition = () => {
 									/>
 								</div>
 
-								<p className="flex-10">
-									{item.label} | {item.pos}
-								</p>
+								<div className="flex-[15]">
+									{item.type === "gps" && typeof item.data === "string" && (
+										<div className="h-20 flex items-center gap-4 justify-between">
+											<p>{item.data}</p>
+											<p>{`${item.latitude},${item.longitude}`}</p>
+										</div>
+									)}
+									{item.type === "img" &&
+										item.data &&
+										typeof item.data === "object" && (
+											<div className="h-20 flex items-center gap-4 justify-between">
+												<img
+													src={URL.createObjectURL(item.data)}
+													className="w-full h-full object-contain"
+												/>
+												<p>{`${item.latitude},${item.longitude}`}</p>
+											</div>
+										)}
+								</div>
 								<div className="flex-1 min-w-[1rem]">
 									<input
 										id={`${idx}:right`}

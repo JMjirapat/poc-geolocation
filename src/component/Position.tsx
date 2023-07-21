@@ -129,9 +129,7 @@ function Position() {
 	return (
 		<div className="max-w-xl mx-auto flex flex-col gap-4 py-12 p-2">
 			<Toaster />
-			{/* <span>
-				<RealTimePosition />
-			</span> */}
+
 			<div className="flex flex-col gap-2">
 				<label className="block text-xs font-medium text-gray-700">
 					เปรียบเทียบ

@@ -1,6 +1,6 @@
 export type positionData = {
-	label: string;
-	pos: string;
+	type: "gps" | "img";
+	data: string | File | null;
 	latitude: number;
 	longitude: number;
 };
