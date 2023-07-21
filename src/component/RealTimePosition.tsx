@@ -60,7 +60,7 @@ const RealTimePosition = () => {
 		exifr
 			.gps(file)
 			.then((data) => {
-				toast.success(JSON.stringify(data));
+				toast.success(`${data.latitude},${data.longitude}`);
 				// setImgCoord({
 				// 	latitude: Number(latitude.toFixed(7)) ?? 0,
 				// 	longitude: Number(longitude.toFixed(7)) ?? 0,
