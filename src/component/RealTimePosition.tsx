@@ -59,12 +59,11 @@ const RealTimePosition = () => {
 		setFile(file);
 		exifr
 			.gps(file)
-			.then((data) => {
-				toast.success(`${data.latitude},${data.longitude}`);
-				// setImgCoord({
-				// 	latitude: Number(latitude.toFixed(7)) ?? 0,
-				// 	longitude: Number(longitude.toFixed(7)) ?? 0,
-				// });
+			.then(({ latitude, longitude }) => {
+				setImgCoord({
+					latitude: Number(latitude.toFixed(7)) ?? 0,
+					longitude: Number(longitude.toFixed(7)) ?? 0,
+				});
 			})
 			.catch((err: string) => {
 				toast.error(`${err}`);
@@ -184,6 +183,7 @@ const RealTimePosition = () => {
 	return (
 		<div className="max-w-xl mx-auto flex flex-col gap-4 py-12 p-2">
 			<Toaster />
+			<>{file}</>
 			<div className="flex flex-col gap-2">
 				<label className="block text-xs font-medium text-gray-700">
 					เปรียบเทียบ
