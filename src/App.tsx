@@ -253,12 +253,12 @@ function App() {
 				</button>
 			</div>
 
-			<div>
+			<div className="flex flex-col">
 				{listPos.map((item, idx) => {
 					return (
 						<div
 							key={idx}
-							className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6"
+							className="flex-1 flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6"
 						>
 							<div className="flex items-center justify-center sm:gap-8">
 								<label>
