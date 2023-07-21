@@ -262,22 +262,29 @@ function App() {
 					return (
 						<div
 							key={idx}
-							className="flex-1 flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6"
+							className="flex-1 flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-2"
 						>
 							<div className="flex items-center justify-center sm:gap-8">
-								<input
-									id={`${idx}:left`}
-									type="checkbox"
-									onChange={handleCheckbox}
-									checked={comparison.left === `${idx}`}
-								/>
-								{item.label} | {item.pos}
-								<input
-									id={`${idx}:right`}
-									type="checkbox"
-									onChange={handleCheckbox}
-									checked={comparison.right === `${idx}`}
-								/>
+								<div className="flex-1">
+									<input
+										id={`${idx}:left`}
+										type="checkbox"
+										onChange={handleCheckbox}
+										checked={comparison.left === `${idx}`}
+									/>
+								</div>
+
+								<p className="flex-10">
+									{item.label} | {item.pos}
+								</p>
+								<div className="flex-1">
+									<input
+										id={`${idx}:right`}
+										type="checkbox"
+										onChange={handleCheckbox}
+										checked={comparison.right === `${idx}`}
+									/>
+								</div>
 							</div>
 						</div>
 					);
