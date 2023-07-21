@@ -161,7 +161,7 @@ function App() {
 	};
 
 	return (
-		<div className="max-w-xl mx-auto flex flex-col gap-4 py-12">
+		<div className="max-w-xl mx-auto flex flex-col gap-4 py-12 p-2">
 			<Toaster />
 			{/* <span>
 				<RealTimePosition />
@@ -225,7 +225,7 @@ function App() {
 					onClick={confirmPosition}
 					disabled={isGeoLoading}
 					type="button"
-					className="inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+					className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
 				>
 					<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
 						ยืนยันตำแหน่ง
@@ -235,7 +235,7 @@ function App() {
 					onClick={addPosition}
 					disabled={!enAddBtn}
 					type="button"
-					className="inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+					className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
 				>
 					<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
 						เพิ่มตำแหน่ง
@@ -245,7 +245,7 @@ function App() {
 					onClick={clearAllPosition}
 					disabled={listPos.length <= 0}
 					type="button"
-					className="inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+					className="flex-1 inline-block rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
 				>
 					<span className="block rounded-full bg-white px-8 py-3 text-sm font-medium hover:bg-transparent">
 						เคลียร์
