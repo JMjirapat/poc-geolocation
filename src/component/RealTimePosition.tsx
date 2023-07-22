@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import {
 	euclideanDistance,
 	haversineDistance,
@@ -6,8 +6,9 @@ import {
 import { positionData } from "../types";
 import toast, { Toaster } from "react-hot-toast";
 //import { IconPhotoPlus, IconGps } from "@tabler/icons-react";
-//import { useDropzone } from "react-dropzone";
-//import exifr from "exifr";
+import { useDropzone } from "react-dropzone";
+import exifr from "exifr";
+import { IconGps, IconPhotoPlus } from "@tabler/icons-react";
 //import Webcam from "react-webcam";
 
 const RealTimePosition = () => {
@@ -34,8 +35,7 @@ const RealTimePosition = () => {
 		left: "",
 		right: "",
 	});
-	//const [addType, setAddType] = useState<"gps" | "img">("gps");
-	const [addType] = useState<"gps" | "img">("gps");
+	const [addType, setAddType] = useState<"gps" | "img">("gps");
 
 	// const videoConstraints = {
 	// 	width: 420,
@@ -88,37 +88,37 @@ const RealTimePosition = () => {
 		};
 	}, []);
 
-	// const onDrop = useCallback((acceptedFiles: File[]) => {
-	// 	if (acceptedFiles.length === 0) return;
-	// 	const file = acceptedFiles[0];
-	// 	setFile(file);
-	// exifr
-	// 	.gps(file)
-	// 	.then(({ latitude, longitude }) => {
-	// 		setImgCoord({
-	// 			latitude: Number(latitude.toFixed(7)) ?? 0,
-	// 			longitude: Number(longitude.toFixed(7)) ?? 0,
-	// 		});
-	// 	})
-	// 	.catch(() => {
-	// 		setImgCoord({
-	// 			latitude: "ไม่พบตำแหน่ง",
-	// 			longitude: "ไม่พบตำแหน่ง",
-	// 		});
-	// 	});
-	// }, []);
+	const onDrop = useCallback((acceptedFiles: File[]) => {
+		if (acceptedFiles.length === 0) return;
+		const file = acceptedFiles[0];
+		setFile(file);
+		exifr
+			.gps(file)
+			.then(({ latitude, longitude }) => {
+				setImgCoord({
+					latitude: Number(latitude.toFixed(7)) ?? 0,
+					longitude: Number(longitude.toFixed(7)) ?? 0,
+				});
+			})
+			.catch(() => {
+				setImgCoord({
+					latitude: "ไม่พบตำแหน่ง",
+					longitude: "ไม่พบตำแหน่ง",
+				});
+			});
+	}, []);
 
-	// const { getRootProps, getInputProps } = useDropzone({
-	// 	accept: {
-	// 		"image/*": [".jpeg", ".png"],
-	// 	},
-	// 	onDrop: onDrop,
-	// 	maxFiles: 1,
-	// 	multiple: false,
-	// 	onError(err) {
-	// 		console.log(err);
-	// 	},
-	// });
+	const { getRootProps, getInputProps } = useDropzone({
+		accept: {
+			"image/*": [".jpeg", ".png"],
+		},
+		onDrop: onDrop,
+		maxFiles: 1,
+		multiple: false,
+		onError(err) {
+			console.log(err);
+		},
+	});
 
 	const distComparison = (leftPos: positionData, right: positionData) => {
 		const euclidean = euclideanDistance(
@@ -252,7 +252,7 @@ const RealTimePosition = () => {
 						: 0}{" "}
 					เมตร
 				</span>
-				{/* <ul className="flex border-b border-gray-100">
+				<ul className="flex border-b border-gray-100">
 					<li className="flex-1">
 						<div
 							className="relative block p-4"
@@ -292,7 +292,7 @@ const RealTimePosition = () => {
 							</div>
 						</div>
 					</li>
-				</ul> */}
+				</ul>
 				{addType === "gps" && (
 					<div className="mt-2 w-full flex flex-col gap-2">
 						<label className="block text-xs font-medium text-gray-700">
@@ -322,7 +322,7 @@ const RealTimePosition = () => {
 				{addType === "img" && (
 					<div className="mt-2 w-full flex flex-col gap-2">
 						<label className="block text-xs font-medium text-gray-700">
-							รูปภาพ
+							รูปภาพ (ใช้ได้เฉพาะ Desktop)
 						</label>
 						<div className="flex flex-col items-center">
 							{/* {img === null ? (
@@ -347,7 +347,7 @@ const RealTimePosition = () => {
 									<button onClick={() => setImg(null)}>Retake</button>
 								</>
 							)} */}
-							{/* <div
+							<div
 								{...getRootProps({
 									className:
 										"w-40 h-40 border flex items-center justify-center overflow-hidden",
@@ -362,24 +362,24 @@ const RealTimePosition = () => {
 								) : (
 									<p>เพิ่มรูปภาพตรงนี้</p>
 								)}
-							</div> */}
+							</div>
 						</div>
 
 						<label className="block text-xs font-medium text-gray-700">
 							ตำแหน่งรูปภาพ:
 						</label>
-						{/* {img ? (
+						{file ? (
 							<>
 								<span>ละติจูด: {imgCoord.latitude}</span>
 								<span>ลองจิจูด: {imgCoord.longitude}</span>
 							</>
 						) : (
 							<span>กรุณาเพิ่มรูปภาพก่อน</span>
-						)} */}
+						)}
 					</div>
 				)}
 			</div>
-			<div className="flex">
+			<div className="flex gap-1">
 				{addType === "gps" && (
 					<button
 						onClick={addPosition}
