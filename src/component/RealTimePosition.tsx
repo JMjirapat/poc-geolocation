@@ -419,49 +419,54 @@ const RealTimePosition = () => {
 			<div className="flex flex-col gap-1">
 				{listPos.map((item, idx) => {
 					return (
-						<div
-							key={idx}
-							className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white px-2 py-4"
+						<a
+							href={`http://maps.google.com/maps?q=${item.latitude},${item.longitude}`}
+							target="_blank"
 						>
-							<div className="flex items-center justify-center sm:gap-8">
-								<div className="flex-1 min-w-[1rem]">
-									<input
-										id={`${idx}:left`}
-										type="checkbox"
-										onChange={handleCheckbox}
-										checked={comparison.left === `${idx}`}
-									/>
-								</div>
+							<div
+								key={idx}
+								className="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white px-2 py-4"
+							>
+								<div className="flex items-center justify-center sm:gap-8">
+									<div className="flex-1 min-w-[1rem]">
+										<input
+											id={`${idx}:left`}
+											type="checkbox"
+											onChange={handleCheckbox}
+											checked={comparison.left === `${idx}`}
+										/>
+									</div>
 
-								<div className="flex-[15]">
-									{item.type === "gps" && typeof item.data === "string" && (
-										<div className="h-20 flex items-center gap-4 justify-between">
-											<p>{item.data}</p>
-											<p>{`${item.latitude},${item.longitude}`}</p>
-										</div>
-									)}
-									{item.type === "img" &&
-										item.data &&
-										typeof item.data === "object" && (
+									<div className="flex-[15]">
+										{item.type === "gps" && typeof item.data === "string" && (
 											<div className="h-20 flex items-center gap-4 justify-between">
-												<img
-													src={URL.createObjectURL(item.data)}
-													className="w-full h-full object-contain"
-												/>
+												<p>{item.data}</p>
 												<p>{`${item.latitude},${item.longitude}`}</p>
 											</div>
 										)}
-								</div>
-								<div className="flex-1 min-w-[1rem]">
-									<input
-										id={`${idx}:right`}
-										type="checkbox"
-										onChange={handleCheckbox}
-										checked={comparison.right === `${idx}`}
-									/>
+										{item.type === "img" &&
+											item.data &&
+											typeof item.data === "object" && (
+												<div className="h-20 flex items-center gap-4 justify-between">
+													<img
+														src={URL.createObjectURL(item.data)}
+														className="w-full h-full object-contain"
+													/>
+													<p>{`${item.latitude},${item.longitude}`}</p>
+												</div>
+											)}
+									</div>
+									<div className="flex-1 min-w-[1rem]">
+										<input
+											id={`${idx}:right`}
+											type="checkbox"
+											onChange={handleCheckbox}
+											checked={comparison.right === `${idx}`}
+										/>
+									</div>
 								</div>
 							</div>
-						</div>
+						</a>
 					);
 				})}
 			</div>

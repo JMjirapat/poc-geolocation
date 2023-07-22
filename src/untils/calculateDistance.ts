@@ -15,21 +15,21 @@ export function haversineDistance(
 	lat2: number,
 	lon2: number
 ) {
-	const earthRadius = 6371000; // Radius of the Earth in meters
+	lon1 = (lon1 * Math.PI) / 180;
+	lon2 = (lon2 * Math.PI) / 180;
+	lat1 = (lat1 * Math.PI) / 180;
+	lat2 = (lat2 * Math.PI) / 180;
 
-	// Convert latitude and longitude from degrees to radians
-	const dLat = (lat2 - lat1) * (Math.PI / 180);
-	const dLon = (lon2 - lon1) * (Math.PI / 180);
-
+	const dlon = lon2 - lon1;
+	const dlat = lat2 - lat1;
 	const a =
-		Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-		Math.cos(lat1 * (Math.PI / 180)) *
-			Math.cos(lat2 * (Math.PI / 180)) *
-			Math.sin(dLon / 2) *
-			Math.sin(dLon / 2);
+		Math.pow(Math.sin(dlat / 2), 2) +
+		Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
 
-	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+	const c = 2 * Math.asin(Math.sqrt(a));
 
-	const distance = earthRadius * c;
-	return distance;
+	// Radius of earth in kilometers. Use 3956
+	// for miles
+	const r = 6371;
+	return c * r * 1000;
 }
