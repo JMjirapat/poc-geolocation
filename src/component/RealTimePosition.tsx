@@ -204,7 +204,7 @@ const RealTimePosition = () => {
 					latitude:
 						typeof imgCoord.latitude === "number" ? imgCoord.latitude : 0,
 					longitude:
-						typeof imgCoord.latitude === "number" ? imgCoord.latitude : 0,
+						typeof imgCoord.longitude === "number" ? imgCoord.longitude : 0,
 					data: file,
 				},
 			]);
